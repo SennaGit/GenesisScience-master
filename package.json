@@ -1,0 +1,18 @@
+{
+  "name": "aether-synth-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Open-source AI research workbench for reproducible science.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "pnpm --filter @aether-synth/desktop dev",
+    "build": "pnpm --filter @aether-synth/desktop build",
+    "test": "pnpm --filter @aether-synth/desktop test",
+    "typecheck": "pnpm --filter @aether-synth/desktop typecheck",
+    "lint": "pnpm --filter @aether-synth/desktop lint"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.4.0"
+}
