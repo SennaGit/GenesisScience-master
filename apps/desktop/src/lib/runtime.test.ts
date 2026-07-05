@@ -23,6 +23,18 @@ describe("tidyToolTitle", () => {
     expect(tidyToolTitle(`/Users/asq/Documents/${legacy}/demo/analyze.py`)).toBe("demo/analyze.py");
   });
 
+  it("tidies Windows workspace paths with spaces in the profile path", () => {
+    expect(tidyToolTitle("C:\\Users\\Jane Doe\\Documents\\GenesisScience\\demo\\analyze.py")).toBe(
+      "demo\\analyze.py",
+    );
+    expect(tidyToolTitle("python C:\\Users\\Jane Doe\\Documents\\GenesisScience\\demo\\analyze.py")).toBe(
+      "python demo\\analyze.py",
+    );
+    expect(tidyToolTitle("mkdir C:\\Users\\Jane Doe\\Documents\\Genesis Science\\run-1")).toBe(
+      "mkdir run-1",
+    );
+  });
+
   it("leaves non-workspace titles unchanged", () => {
     expect(tidyToolTitle("search (done)")).toBe("search (done)");
     expect(tidyToolTitle("python3 -c \"import numpy\"")).toBe('python3 -c "import numpy"');

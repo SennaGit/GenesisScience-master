@@ -48,17 +48,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Fetch bundled OpenCode sidecar
-        shell: bash
-        run: bash scripts/dev/fetch-opencode.sh ${{ matrix.target }}
-
-      - name: Fetch bundled aether-synth-skills pack
-        shell: bash
-        run: bash scripts/dev/fetch-skills.sh
-
-      - name: Fetch bundled uv sidecar
-        shell: bash
-        run: bash scripts/dev/fetch-uv.sh ${{ matrix.target }}
+      - name: Fetch bundled sidecars and skills
+        run: pnpm bootstrap:runtime --target=${{ matrix.target }}
 
       - name: Build the app (Tauri)
         uses: tauri-apps/tauri-action@v0

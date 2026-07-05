@@ -51,3 +51,4 @@ runtime/skills/external/
 
 # Source archive generated for handoff
 GenesisScience-master.zip
+.pnpm-store/

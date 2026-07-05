@@ -778,19 +778,32 @@ export interface FoldState {
 /** Pure reducer: fold one normalized OpenCode event into a thread's blocks. */
 /**
  * Tidy a tool-call title for the conversation: show workspace files by their
- * relative path (`demo/analyze.py`), not the full `/Users/.../GenesisScience/...`
- * absolute path, so the thread reads like a researcher's log, not a shell trace.
- * The workspace path never contains spaces (by design), so a space-free run
- * ending in `GenesisScience/` matches it whether or not it has a leading slash
- * (OpenCode's write-tool titles drop it).
+ * relative path (`demo/analyze.py`), not the full user-profile path. Windows
+ * profile folders can contain spaces, so match real absolute paths by their
+ * drive/root prefix, not by "no whitespace" assumptions.
  */
-const WORKSPACE_TITLE_MARKERS = ["GenesisScience", ["Open", "Science"].join("")];
+const WORKSPACE_TITLE_MARKERS = [
+  "GenesisScience",
+  "Genesis Science",
+  ["Open", "Science"].join(""),
+  "Open Science",
+];
+
+function escapeRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 export function tidyToolTitle(title: string): string {
-  const cleaned = WORKSPACE_TITLE_MARKERS.reduce(
-    (text, marker) => text.replace(new RegExp(`[^\\s]*${marker}/`, "g"), ""),
-    title,
-  ).trim();
+  let cleaned = title;
+  for (const marker of WORKSPACE_TITLE_MARKERS) {
+    const m = escapeRegex(marker);
+    cleaned = cleaned
+      // Absolute Unix or Windows paths, including user/profile segments with spaces.
+      .replace(new RegExp("(^|\\s)((?:[A-Za-z]:)|[/\\\\])[^\\n\\r\"'`]*?" + m + "[/\\\\]", "g"), "$1")
+      // OpenCode sometimes drops the leading slash from write-tool titles.
+      .replace(new RegExp("(^|\\s)[^\\s\\n\\r\"'`]*" + m + "[/\\\\]", "g"), "$1");
+  }
+  cleaned = cleaned.trim();
   return cleaned || title;
 }
 

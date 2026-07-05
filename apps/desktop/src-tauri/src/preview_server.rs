@@ -128,6 +128,33 @@ pub fn serve_root(root: PathBuf) -> std::io::Result<u16> {
     Ok(port)
 }
 
+fn handle_current_workspace(mut stream: TcpStream, app: AppHandle) {
+    match workspace_dir(&app) {
+        Ok(root) => handle(stream, root),
+        Err(e) => write_response(
+            &mut stream,
+            "500 Internal Server Error",
+            "text/plain",
+            format!("workspace unavailable: {e}").as_bytes(),
+            false,
+        ),
+    }
+}
+
+/// Serve whichever workspace is active at request time. The app can switch from
+/// the base workspace to a dated session folder after the preview server starts.
+fn serve_current_workspace(app: AppHandle) -> std::io::Result<u16> {
+    let listener = TcpListener::bind("127.0.0.1:0")?;
+    let port = listener.local_addr()?.port();
+    std::thread::spawn(move || {
+        for stream in listener.incoming().flatten() {
+            let app = app.clone();
+            std::thread::spawn(move || handle_current_workspace(stream, app));
+        }
+    });
+    Ok(port)
+}
+
 /// URL a workspace file is previewable at (starts the server on first use).
 #[tauri::command]
 pub fn preview_url(
@@ -139,7 +166,7 @@ pub fn preview_url(
     let port = match *guard {
         Some(p) => p,
         None => {
-            let p = serve_root(workspace_dir(&app)?).map_err(|e| e.to_string())?;
+            let p = serve_current_workspace(app.clone()).map_err(|e| e.to_string())?;
             *guard = Some(p);
             p
         }

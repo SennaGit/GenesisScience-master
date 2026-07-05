@@ -160,16 +160,26 @@ Build the desktop app from source:
 ```bash
 git clone https://github.com/aether-synth/GenesisScience
 cd GenesisScience
-pnpm install
-
-# Fetch the pinned sidecars and bundled skills (kept out of git):
-bash scripts/dev/fetch-opencode.sh   # the OpenCode agent runtime
-bash scripts/dev/fetch-uv.sh         # uv, for isolated Python/Jupyter envs
-bash scripts/dev/fetch-skills.sh     # the aether-synth-skills pack
+pnpm bootstrap
 
 # Develop, or build an installer (.dmg / .app / NSIS / .msi):
 pnpm --filter @aether-synth/desktop tauri dev
 pnpm --filter @aether-synth/desktop tauri build
+```
+
+`pnpm bootstrap` installs workspace dependencies and fetches the pinned runtime
+artifacts that stay out of git: the OpenCode sidecar, the `uv` sidecar, and the
+bundled `aether-synth-skills` pack. On Windows it calls the PowerShell fetchers
+(`scripts/dev/fetch-opencode.ps1`, `fetch-uv.ps1`, `fetch-skills.ps1`) and writes
+Tauri sidecars as `opencode-x86_64-pc-windows-msvc.exe` and
+`uv-x86_64-pc-windows-msvc.exe`.
+
+For a Windows first-run smoke check after bootstrap:
+
+```powershell
+pnpm smoke:windows
+# Optional slower checks:
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev/windows-first-run-smoke.ps1 -BuildInstaller
 ```
 
 On first launch the app starts the bundled runtime automatically and works out of the
@@ -194,7 +204,7 @@ pnpm lint        # ESLint
   right pane; open its **History** to see every version and jump back to the
   conversation that produced it.
 - **Reach anything with ⌘K** — the command palette runs every primary action.
-- **Add data** — drop files into the workspace (`~/Documents/GenesisScience`) or attach
+- **Add data** — drop files into the workspace (`~/Documents/GenesisScience`, or `%USERPROFILE%\Documents\GenesisScience` on Windows) or attach
   them in the composer; the agent reads and writes there.
 
 ## 🔒 Safety & privacy
@@ -225,7 +235,7 @@ pnpm lint        # ESLint
 
 ## 📌 Status & roadmap
 
-`v0.1`, in active development — a working desktop MVP on macOS. See
+`v0.1`, in active development — a working desktop MVP on macOS, with Windows bootstrap/smoke tooling in place. See
 [`PROGRESS.md`](./PROGRESS.md) for the log and
 [`docs/REQUIREMENTS.md`](./docs/REQUIREMENTS.md) / [`docs/PRD.md`](./docs/PRD.md) for
 the full spec.
@@ -233,8 +243,7 @@ the full spec.
 - ✅ End-to-end workflow, artifact provenance, traceability reviewer, local Python
   kernel + Jupyter, one-click science connectors, plain-language data-flow, chart
   design system, command palette.
-- 🚧 Next: domain renderers (protein / chemical structures), an R kernel, a Windows
-  installer, larger multi-file projects, and HPC / Slurm compute.
+- 🚧 Next: signed Windows installer verification on real hardware, broader curated connectors, and larger multi-file project polish.
 
 ## 🤝 Contributing
 

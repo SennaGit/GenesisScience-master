@@ -5,6 +5,9 @@
   "description": "Open-source AI research workbench for reproducible science.",
   "license": "MIT",
   "scripts": {
+    "bootstrap": "pnpm install && node scripts/dev/bootstrap.mjs",
+    "bootstrap:runtime": "node scripts/dev/bootstrap.mjs",
+    "smoke:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev/windows-first-run-smoke.ps1",
     "dev": "pnpm --filter @aether-synth/desktop dev",
     "build": "pnpm --filter @aether-synth/desktop build",
     "test": "pnpm --filter @aether-synth/desktop test",
